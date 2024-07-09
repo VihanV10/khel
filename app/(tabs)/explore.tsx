@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, FlatList, StyleSheet, Image } from 'react-native';
+import { View, Text, FlatList, StyleSheet } from 'react-native';
 import { supabase } from '../supabase';
+import Avatar from './components/avatar';
 
 type UserProfile = {
   id: number;
@@ -13,9 +14,7 @@ type UserProfile = {
 };
 
 const fetchUserProfiles = async (): Promise<UserProfile[]> => {
-  let { data: profiles, error } = await supabase
-    .from('profiles')
-    .select('*');
+  let { data: profiles, error } = await supabase.from('profiles').select('*');
   if (error) {
     console.error(error);
     return [];
@@ -38,18 +37,15 @@ const UserProfileList: React.FC = () => {
 
   const renderItem = ({ item }: { item: UserProfile }) => (
     <View style={styles.profileItem}>
-      <Text>{item.username}</Text>
-      <Text>Cricket: {item.Cricket}</Text>
-      <Text>Pickleball: {item.Pickleball}</Text>
-      {item.avatar_url ? (
-        <Image
-          source={{ uri: item.avatar_url }}
-          style={styles.avatar}
-          onError={() => console.log('Error loading image:', item.avatar_url)} // Log image loading errors
-        />
-      ) : (
-        <Text>No Image</Text>
-      )}
+      <View style={styles.header}>
+        <Text style={styles.username}>{item.username}</Text>
+      </View>
+      <View style={styles.details}>
+        <Text style={styles.detailText}>Cricket: {item.Cricket}</Text>
+        <Text style={styles.detailText}>Pickleball: {item.Pickleball}</Text>
+      </View>
+      {/* Pass showUploadButton={false} to hide the upload button */}
+      <Avatar size={200} url={item.avatar_url} onUpload={(url: string) => {}} showUploadButton={false} />
     </View>
   );
 
@@ -70,15 +66,30 @@ const styles = StyleSheet.create({
     padding: 16,
   },
   profileItem: {
+    marginBottom: 16,
     padding: 16,
-    borderBottomWidth: 1,
-    borderBottomColor: '#ccc',
+    backgroundColor: '#fff',
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: '#ddd',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.8,
+    shadowRadius: 2,
+    elevation: 5,
   },
-  avatar: {
-    width: 100,
-    height: 100,
-    borderRadius: 25,
-    marginTop: 8,
+  header: {
+    marginBottom: 12,
+  },
+  username: {
+    fontSize: 18,
+    fontWeight: 'bold',
+  },
+  details: {
+    marginBottom: 12,
+  },
+  detailText: {
+    fontSize: 16,
   },
 });
 

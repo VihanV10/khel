@@ -3,6 +3,9 @@ import { supabase } from '@/app/supabase'
 import { StyleSheet, View, Alert } from 'react-native'
 import { Button, Input } from '@rneui/themed'
 import { Session } from '@supabase/supabase-js'
+import { Picker } from '@react-native-picker/picker'
+import { Text, Modal, TouchableOpacity} from 'react-native';
+import Avatar from './avatar'
 
 export default function Account({ session }: { session: Session }) {
   const [loading, setLoading] = useState(true)
@@ -10,6 +13,9 @@ export default function Account({ session }: { session: Session }) {
   const [Cricket, setCricket] = useState('')
   const [Pickleball, setPickleball] = useState('')
   const [avatarUrl, setAvatarUrl] = useState('')
+  const [showCricketPicker, setShowCricketPicker] = useState(false); // State for showing/hiding Cricket picker
+  const [showPickleballPicker, setShowPickleballPicker] = useState(false); // State for showing/hiding Pickleball picker
+
 
   useEffect(() => {
     if (session) getProfile()
@@ -90,12 +96,53 @@ export default function Account({ session }: { session: Session }) {
       <View style={styles.verticallySpaced}>
         <Input label="Username" value={username || ''} onChangeText={(text) => setUsername(text)} />
       </View>
+      <View style={styles.container}>
+      {/* Other JSX code */}
+      
       <View style={styles.verticallySpaced}>
-        <Input label="Cricket" value={Cricket || ''} onChangeText={(text) => setCricket(text)} />
+        <Text style={styles.label}>Cricket:</Text>
+        <TouchableOpacity onPress={() => setShowCricketPicker(!showCricketPicker)}>
+          <Text style={styles.selectedValue}>{Cricket || 'Select Cricket'}</Text>
+        </TouchableOpacity>
+        {showCricketPicker && (
+          <Picker
+            selectedValue={Cricket}
+            onValueChange={(itemValue) => setCricket(itemValue)}
+            style={styles.picker}
+          >
+            <Picker.Item label="Easy" value="Easy" />
+            <Picker.Item label="Medium" value="Medium" />
+            <Picker.Item label="Hard" value="Hard" />
+          </Picker>
+        )}
       </View>
+
       <View style={styles.verticallySpaced}>
-        <Input label="Pickleball" value={Cricket || ''} onChangeText={(text) => setPickleball(text)} />
+        <Text style={styles.label}>Pickleball:</Text>
+        <TouchableOpacity onPress={() => setShowPickleballPicker(!showPickleballPicker)}>
+          <Text style={styles.selectedValue}>{Pickleball || 'Select Pickleball'}</Text>
+        </TouchableOpacity>
+        {showPickleballPicker && (
+          <Picker
+            selectedValue={Pickleball}
+            onValueChange={(itemValue) => setPickleball(itemValue)}
+            style={styles.picker}
+          >
+            <Picker.Item label="Easy" value="Easy" />
+            <Picker.Item label="Medium" value="Medium" />
+            <Picker.Item label="Hard" value="Hard" />
+          </Picker>
+        
+        )}
+        <Avatar
+          size={200}
+          url={avatarUrl}
+          onUpload={(url: string) => {
+            setAvatarUrl(url)
+          }}
+        />
       </View>
+
 
       <View style={[styles.verticallySpaced, styles.mt20]}>
         <Button
@@ -108,6 +155,7 @@ export default function Account({ session }: { session: Session }) {
       <View style={styles.verticallySpaced}>
         <Button title="Sign Out" onPress={() => supabase.auth.signOut()} />
       </View>
+    </View>
     </View>
   )
 }
@@ -124,5 +172,28 @@ const styles = StyleSheet.create({
   },
   mt20: {
     marginTop: 20,
+  },
+  label: {
+    fontSize: 16,
+    marginBottom: 4,
+    color: 'black', // Adjust as needed
+  },
+  picker: {
+    height: 50,
+    width: '100%',
+    borderWidth: 1,
+    borderColor: '#ccc',
+    borderRadius: 8,
+    marginBottom: 10,
+    paddingHorizontal: 10,
+  },
+  selectedValue: {
+    fontSize: 16,
+    padding: 8,
+    borderWidth: 1,
+    borderColor: '#ccc',
+    borderRadius: 4,
+    marginBottom: 8,
+    color: 'black', // Ensure to define color property
   },
 })
