@@ -6,15 +6,17 @@ import { supabase } from '@/app/supabase';
 interface Props {
   size: number;
   url: string | null;
-  onUpload: (filePath: string) => void;
-  showUploadButton?: boolean; // New prop to conditionally show/hide upload button
+  onUpload: (filePath: string, userId: string | null) => void; // Modified to include userId
+  showUploadButton?: boolean;
+  userId?: string | null; // New prop to pass userId
 }
 
 export default function Avatar({
   url,
   size = 150,
   onUpload,
-  showUploadButton = true, // Default to true (show button), can be overridden
+  showUploadButton = true,
+  userId = null, // Default to null if userId is not provided
 }: Props) {
   const [uploading, setUploading] = useState(false);
   const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
@@ -49,11 +51,11 @@ export default function Avatar({
       setUploading(true);
 
       const result = await ImagePicker.launchImageLibraryAsync({
-        mediaTypes: ImagePicker.MediaTypeOptions.Images, // Restrict to only images
-        allowsMultipleSelection: false, // Can only select one image
-        allowsEditing: true, // Allows the user to crop / rotate their photo before uploading it
+        mediaTypes: ImagePicker.MediaTypeOptions.Images,
+        allowsMultipleSelection: false,
+        allowsEditing: true,
         quality: 1,
-        exif: false, // We don't want nor need that data.
+        exif: false,
       });
 
       if (result.canceled || !result.assets || result.assets.length === 0) {
@@ -65,7 +67,7 @@ export default function Avatar({
       console.log('Got image', image);
 
       if (!image.uri) {
-        throw new Error('No image uri!'); // Realistically, this should never happen, but just in case...
+        throw new Error('No image uri!');
       }
 
       const arraybuffer = await fetch(image.uri).then((res) => res.arrayBuffer());
@@ -82,7 +84,7 @@ export default function Avatar({
         throw uploadError;
       }
 
-      onUpload(data.path);
+      onUpload(data.path, userId); // Pass both file path and userId to onUpload
     } catch (error) {
       if (error instanceof Error) {
         Alert.alert(error.message);
@@ -105,7 +107,7 @@ export default function Avatar({
       ) : (
         <View style={[avatarSize, styles.avatar, styles.noImage]} />
       )}
-      {showUploadButton && ( // Conditionally render the upload button
+      {showUploadButton && (
         <View>
           <Button
             title={uploading ? 'Uploading ...' : 'Upload'}

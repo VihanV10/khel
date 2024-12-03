@@ -1,6 +1,8 @@
 {
   "extends": "expo/tsconfig.base",
   "compilerOptions": {
+    "target": "es2017", // or higher (e.g., es2020, es2022)
+    "module": "es2022", // or "esnext", "node16", etc.
     "strict": true,
     "paths": {
       "@/*": [
@@ -13,5 +15,5 @@
     "**/*.tsx",
     ".expo/types/**/*.ts",
     "expo-env.d.ts"
-  ]
+, "app/(tabs)/components/Messaging.js"  ]
 }
